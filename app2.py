@@ -1,6 +1,9 @@
 import speech_recognition as sr
 import os
 
+open_tokens = ["open", "launch", "start"]
+close_tokens = ["close", "exit", "quit"]
+
 # Create recognizer object
 recognizer = sr.Recognizer()
 
@@ -16,10 +19,27 @@ with sr.Microphone() as source:
 
 
     try:
-        app = recognizer.recognize_google(audio)
-        print("📝 You said:", app)
-        
-        # Call the function to open the app
+        text = recognizer.recognize_google(audio)
+        print("📝 You said:", text)
+
+        tokens = text.lower().split()
+        print("Tokens:", tokens)
+        def parse_command(tokens):
+            intent = None
+            for token in tokens:
+                if token in open_tokens:
+                    intent = "open"
+                    break
+                elif token in close_tokens:
+                    intent = "close"
+                    break
+            print("Intent:", intent)
+            return intent
+            
+        parse_command(tokens)
+           
+
+        # Define the function to open the app
         def open_app(app):
             if "chrome" in app.lower():
                 os.system("start chrome")
@@ -28,7 +48,12 @@ with sr.Microphone() as source:
             else:
                 print(f"🚫 Application not recognized or not supported.")
 
-        open_app(app)
+        # Find the app name from tokens and call open_app
+        for token in tokens:
+            if token in ["chrome", "notepad"]:
+                open_app(token)
+                break
+
 
     except sr.UnknownValueError:
         print("❌ Sorry, I didn't catch that.")
